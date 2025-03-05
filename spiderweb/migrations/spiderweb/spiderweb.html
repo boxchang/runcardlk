@@ -150,7 +150,6 @@
                                     <div class="col-2">DEVICE</div>
                                     <div class="col-2">ISSUE TIME</div>
                                     <div class="col-6">ERROR MSG</div>
-                                    <div class="col-1">REF LINK</div>
                                     <div class="col-1">RECOVER</div>
                                 </div>
                                 {% for pk, dn, ua, mg, link in msg %}
@@ -158,7 +157,6 @@
                                     <div class="col-2">{{ dn }}</div>
                                     <div class="col-2">{{ ua|date:"Y/m/d H:i:s" }}</div>
                                     <div class="col-6">{{ mg }}</div>
-                                    <div class="col-1">{% if link %}<a href="{{ link }}" class="btn btn-light" target="_blank">REF</a>{% endif %}</div>
                                     <div class="col-1">
                                         <a href="{% url 'abnormal_recover' pk %}" class="btn btn-light" onclick="return confirm('Are you sure?')">
                                             <i class="fas fa-times"></i>
@@ -184,9 +182,6 @@
                 <button type="button" style="color: white; background-color: blue; padding: 15px 20px; border-radius: 8px; border: none;">
                     <i class="fas fa-cog fa-lg"></i>
                 </button>
-            </a>
-            <a href="{% url 'runcard_info' %}" style="text-decoration: none;">
-                <button type="button" style="color: white; background-color: blue; padding: 15px 20px; border-radius: 8px; border: none;">Return</button>
             </a>
         </div>
     </div>

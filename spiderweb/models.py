@@ -1,3 +1,4 @@
+from django.contrib.auth.models import User
 from django.db import models
 from django.utils import timezone
 from django.conf import settings
@@ -8,7 +9,7 @@ class Monitor_Status(models.Model):
     desc = models.CharField(max_length=200, null=False, blank=False)
     ref_url = models.CharField(max_length=500, null=True, blank=True)
     update_at = models.DateTimeField(default=timezone.now)
-    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+    update_by = models.ForeignKey(User, on_delete=models.DO_NOTHING,
                                   related_name='check_status_update_by')
 
     def __str__(self):
@@ -18,7 +19,7 @@ class Monitor_Status(models.Model):
 class Monitor_Type(models.Model):
     type_name = models.CharField(max_length=100, unique=True)
     update_at = models.DateTimeField(default=timezone.now)
-    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+    update_by = models.ForeignKey(User, on_delete=models.DO_NOTHING,
                                   related_name='monitor_type_update_by')
 
     def __str__(self):
@@ -29,7 +30,7 @@ class Device_Type(models.Model):
     type_name = models.CharField(max_length=100, unique=True)
     job_frequency = models.CharField(max_length=10, null=False, blank=False)
     update_at = models.DateTimeField(default=timezone.now)
-    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+    update_by = models.ForeignKey(User, on_delete=models.DO_NOTHING,
                                   related_name='device_type_update_by')
 
     def __str__(self):
@@ -58,7 +59,7 @@ class Monitor_Device_List(models.Model):
     attr4 = models.CharField(max_length=500, null=True, blank=True)
     attr5 = models.CharField(max_length=500, null=True, blank=True)
     update_at = models.DateTimeField(default=timezone.now)
-    update_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.DO_NOTHING,
+    update_by = models.ForeignKey(User, on_delete=models.DO_NOTHING,
                                   related_name='monitor_list_update_by')
 
     def __str__(self):

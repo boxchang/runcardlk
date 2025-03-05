@@ -32,7 +32,6 @@ ALLOWED_HOSTS = ['*']
 INSTALLED_APPS = [
     'runcard',
     'spiderweb',
-    'users',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -107,9 +106,9 @@ DATABASES = {
         },
     }
     # ,
-    # 'VNEDC': {
+    # 'LKEDC': {
     #     'ENGINE': 'mssql',
-    #     'NAME': 'VNEDC',
+    #     'NAME': 'LKEDC',
     #     'USER': 'vnedc',
     #     'PASSWORD': 'vnedc#2024',
     #     'HOST': '192.168.11.31',
@@ -163,6 +162,4 @@ STATIC_URL = '/static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-AUTH_USER_MODEL = 'users.CustomUser'
 
-AUTHENTICATION_BACKENDS = ['users.backends.EmpNoBackend']

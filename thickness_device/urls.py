@@ -25,7 +25,6 @@ from django.conf import settings
 
 urlpatterns = [
     url('admin/', admin.site.urls),
-    url(r'^users/', include('users.urls')),
     url(r'^spiderweb/', include('spiderweb.urls')),
     url(r'^runcard', include('runcard.urls')),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),

@@ -30,10 +30,10 @@ def spiderweb(request):
         sql = f"""
         select dlg.id, dt.type_name, dl.status_id, dl.device_name, dlg.comment, s.ref_url,
         max(case when dl.status_id != 'S01' and enable = 'Y' and dlg.recover_msg is NULL and dl.device_type_id = dt.id then dlg.update_at end) as update_at
-        from [VNEDC].[dbo].[spiderweb_device_type] dt
-        join  [VNEDC].[dbo].[spiderweb_monitor_device_list] dl on dl.device_type_id = dt.id
-        join [VNEDC].[dbo].[spiderweb_monitor_device_log] dlg on dlg.func_name = dt.type_name and dlg.device_id = dl.id
-		join [VNEDC].[dbo].[spiderweb_monitor_status] s on dl.status_id = s.status_code
+        from [LKEDC].[dbo].[spiderweb_device_type] dt
+        join  [LKEDC].[dbo].[spiderweb_monitor_device_list] dl on dl.device_type_id = dt.id
+        join [LKEDC].[dbo].[spiderweb_monitor_device_log] dlg on dlg.func_name = dt.type_name and dlg.device_id = dl.id
+		join [LKEDC].[dbo].[spiderweb_monitor_status] s on dl.status_id = s.status_code
         where dl.status_id != 'S01' and enable = 'Y' and dlg.recover_msg is NULL and type_name = '{name}'
         and (GETDATE() > CONVERT(DATETIME, stop_before, 103) or stop_before ='')
         group by dlg.id, dt.type_name, dl.status_id, dl.device_name, dlg.comment,s.ref_url
