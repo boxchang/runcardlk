@@ -1,0 +1,214 @@
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>System Noah</title>
+    <link rel="stylesheet" href="{% static 'jquery-ui\jquery-ui.min.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.1.3\css\bootstrap.min.css' %}">
+    <script src="{% static 'base\js\umd\popper.js' %}"></script>
+    <script src="{% static 'jquery\jquery-3.3.1.min.js' %}"></script>
+    <script src="{% static 'jquery-ui\jquery-ui.min.js' %}"></script>
+    <script src="{% static 'bootstrap-4.1.3\js\bootstrap.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'fontawesome-5.4.2\css\all.css' %}">
+    <!--Custom styles-->
+	<link rel="stylesheet" type="text/css" href="{% static 'base\css\login.css' %}">
+    <style type="text/css">
+        input:required {
+            background: #ffffe7;
+        }
+
+        select:required {
+            background: #ffffe7;
+        }
+
+        .content {
+            color: blue;
+        }
+
+        .django-ckeditor-widget{
+            display: inline !important;
+        }
+
+        img{
+            max-width:100%;
+        }
+        th{
+            font-family:arial,sans-serif,Meiryo,Microsoft JhengHei;
+        }
+        td{
+            font-family:arial,sans-serif,Meiryo,Microsoft JhengHei;
+        }
+        option{
+            font-family:arial,sans-serif,Meiryo,Microsoft JhengHei;
+        }
+        a{
+            font-family:arial,sans-serif,Meiryo,Microsoft JhengHei;
+        }
+        div{
+            font-family:arial,sans-serif,Meiryo,Microsoft JhengHei;
+        }
+        html, body {
+          height: 100%;
+        }
+        /* width */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+
+        /* Track */
+        ::-webkit-scrollbar-track {
+          background: #f1f1f1;
+        }
+
+        /* Handle */
+        ::-webkit-scrollbar-thumb {
+          background: #888;
+            border-radius: 5px;
+        }
+
+        /* Handle on hover */
+        ::-webkit-scrollbar-thumb:hover {
+          background: #555;
+        }
+
+        .box-nav {
+            text-align: center;
+            padding-top: 60px;
+        }
+
+        .box-nav-btn {
+            margin-top: 5px;
+            width: 50px;
+            height: 50px;
+            display: block;
+        }
+
+        .box-nav a {
+            color: #CCC;
+        }
+
+        .box-nav a:hover {
+            color: #000;
+        }
+    </style>
+
+    <script language="JavaScript">
+        $(document).ready(function() {
+               {% block ready %}
+               {% endblock ready %}
+        });
+
+        function submit(form_div){
+            $('#'+form_div).submit();
+        }
+
+        $(function(){
+            ShowDate();
+            ShowTime();
+        });
+
+        function ShowDate(){
+          var weekday = new Array(7);
+          weekday[0] =  "Sunday";
+          weekday[1] = "Monday";
+          weekday[2] = "Tuesday";
+          weekday[3] = "Wednesday";
+          weekday[4] = "Thursday";
+          weekday[5] = "Friday";
+          weekday[6] = "Saturday";
+          var TimeNow=new Date();
+          var yyyy = TimeNow.getFullYear();
+          var MM = (TimeNow.getMonth()+1<10 ? '0' : '')+(TimeNow.getMonth()+1);
+          var dd = (TimeNow.getDate()<10 ? '0' : '')+TimeNow.getDate();
+          var n = weekday[TimeNow.getDay()];
+          $('#show_date').html(yyyy+'/'+MM+'/'+dd+' '+n);
+        }
+
+        function ShowTime(){
+        　var TimeNow=new Date();
+        　var h = (TimeNow.getHours()<10 ? '0' : '')+TimeNow.getHours();
+          var m = (TimeNow.getMinutes()<10 ? '0' : '')+TimeNow.getMinutes();
+          var s = (TimeNow.getSeconds()<10 ? '0' : '')+TimeNow.getSeconds(); 　
+
+        　$('#show_time').html(h+':'+m);
+        　setTimeout('ShowTime()',1000);
+        }
+
+    </script>
+</head>
+<body>
+<div class="container">
+
+    <div class="d-flex justify-content-center h-100">
+        <div class="col-md-8 d-flex justify-content-center h-100">
+            <div style="text-align: center;width:100%;height:370px;margin-top: auto;margin-bottom: auto;">
+
+                <div id="show_time" style="font-size: 8em;color:white;"></div>
+                <div id="show_date" style="font-size: 3em;color:white;"></div>
+            </div>
+        </div>
+        <div class="col-md-4 d-flex justify-content-center h-100">
+            <div class="card">
+                <div class="card-header" style="background: #024A54">
+                    <div class="p-2" style="text-align: center">
+                        <img src="{% static '/base/logo.svg' %}" style="width:100%" />
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="login_form" action="{% url 'login' %}">
+                    {% csrf_token %}
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-user"></i></span>
+                        </div>
+                        <input type="text" name="emp_no" class="form-control" placeholder="{% trans 'emp_no' %}" value="{{ cookies_username }}">
+
+                    </div>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-key"></i></span>
+                        </div>
+                        <input type="password" name="password" class="form-control" placeholder="password" value="{{ cookies_password }}">
+                    </div>
+                    <div class="input-group form-group" style="text-align: left">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-robot"></i></span>
+                        </div>
+                        <input type="checkbox" name="remember" class="form-control" value="on" checked>
+                        <span style="font-size:1.1em;">Remember Password</span>
+                    </div>
+                        <input type="hidden" name="next" value="{{ next }}" />
+                    </form>
+                    <div class="input-group form-group">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text"><i class="fas fa-globe-asia"></i></span>
+                        </div>
+                        {% include 'bases/lang.html' %}
+                    </div>
+                    <div class="form-group text-center pt-3">
+                        <input type="button" value="{% trans "Submit" %}" class="btn login_btn" onclick="submit('login_form');">
+                    </div>
+
+                </div>
+                <div class="card-footer">
+                    {% if messages %}
+                        <div class="float-left">
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
