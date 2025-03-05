@@ -26,7 +26,7 @@ from django.conf import settings
 urlpatterns = [
     url('admin/', admin.site.urls),
     url(r'^spiderweb/', include('spiderweb.urls')),
-    url(r'^runcard', include('runcard.urls')),
+    url(r'^runcard/', include('runcard.urls')),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^i18n/', include('django.conf.urls.i18n')),
     url(r'^favicon\.ico$', RedirectView.as_view(url='/static/favicon.ico')),
