@@ -1,0 +1,209 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Response Dashboard</title>
+    <link rel="stylesheet" href="{% static 'fontawesome-5.4.2\css\all.css' %}">
+    <link rel="stylesheet" href="{% static 'bootstrap-4.1.3\css\bootstrap.min.css' %}">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .container-c {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+        }
+        .card {
+            flex: 1 1 calc(25% - 20px);
+            background-color: #fff;
+            margin: 10px;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: transform 0.6s;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            perspective: 1000px;
+        }
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+        .card-front, .card-back {
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+        }
+        .card-back {
+            transform: rotateY(180deg);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .icon {
+            font-size: 3rem;
+            margin-bottom: 10px;
+        }
+        .response-type {
+            font-size: 1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .response-count {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .reload-time {
+            margin-top: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+        .green {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .yellow {
+            background-color: #FFC107;
+            color: white;
+        }
+        .blue {
+            background-color: #00BCD4;
+            color: white;
+        }
+        .red {
+            background-color: #F44336;
+            color: white;
+        }
+
+        {#Styling css table alerts#}
+
+        th {
+            color: white;
+        }
+        th, td {
+            border-radius: 5px;
+            padding: 10px;
+            margin: 10px;
+            text-align: center
+        }
+        table {
+            border-spacing: 3px;
+        }
+
+
+
+        @media (min-width: 800px) {
+            .error {
+                flex: 1 1 calc(100% - 20px);
+            }
+
+            .normal {
+                flex: 1 1 calc(10% - 20px);
+            }
+        }
+        @media (max-width: 800px) {
+            .card {
+                flex: 1 1 calc(50% - 20px);
+            }
+        }
+        @media (max-width: 580px) {
+            .card {
+                flex: 1 1 100%;
+            }
+        }
+
+        .clearfix{
+            clear:both;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <div class="container-c">
+            {% for name, mode, detail, msg in monitor_web %}
+                <div class="card {% if mode == 0 %}normal green {% elif mode < 0 %}normal yellow {% else %}error red {% endif %}" error="{{ mode }}">
+                    <div class="card-inner">
+                        <div class="card-front">
+                            <i class="fas {% if mode == 0 %} fa-check-circle {% elif mode < 0 %} fa-exclamation-circle {% else %} fa-bug {% endif %} icon"></i>
+                            <div class="response-type">{{ name }}</div>
+                            {% if mode > 0 %}
+                            <div style="">
+                                <div class="row" style="background-color: rgba(0, 0, 0, 1);padding-top: 1.5vh; padding-bottom: 1vh;">
+                                    <div class="col-2">DEVICE</div>
+                                    <div class="col-2">ISSUE TIME</div>
+                                    <div class="col-6">ERROR MSG</div>
+                                    <div class="col-1">REF LINK</div>
+                                    <div class="col-1">RECOVER</div>
+                                </div>
+                                {% for pk, dn, ua, mg, link in msg %}
+                                <div class="row" style="background-color: rgba(0, 0, 0, 0.65);padding-top: 1.5vh; padding-bottom: 1vh;">
+                                    <div class="col-2">{{ dn }}</div>
+                                    <div class="col-2">{{ ua|date:"Y/m/d H:i:s" }}</div>
+                                    <div class="col-6">{{ mg }}</div>
+                                    <div class="col-1">{% if link %}<a href="{{ link }}" class="btn btn-light" target="_blank">REF</a>{% endif %}</div>
+                                    <div class="col-1">
+                                        <a href="{% url 'abnormal_recover' pk %}" class="btn btn-light" onclick="return confirm('Are you sure?')">
+                                            <i class="fas fa-times"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div id="reload-time" class="reload-time" style="margin-left: 5%">
+            Last checked time: <span id="last-reload">{{ last_update_time }}</span>
+        </div>
+        <div style="margin-right: 5%">
+            <a href="{% url 'config_layout' %}" target="_blank">
+                <button type="button" style="color: white; background-color: blue; padding: 15px 20px; border-radius: 8px; border: none;">
+                    <i class="fas fa-cog fa-lg"></i>
+                </button>
+            </a>
+        </div>
+    </div>
+    <script>
+        setInterval(function() {
+            location.reload();
+        }, {{ reload_time }});
+
+        document.addEventListener("DOMContentLoaded", () => {
+          // 選取所有的 div 元素
+          const divs = document.querySelectorAll("div");
+          // 尋找 error="1" 的元素
+          divs.forEach(div => {
+            if (div.getAttribute("error") > 0) {
+              // 將其移動到父節點的第一個子節點
+              div.parentNode.insertBefore(div, div.parentNode.firstChild);
+            }
+          });
+        });
+
+    </script>
+</body>
+</html>

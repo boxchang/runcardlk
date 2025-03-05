@@ -1,0 +1,291 @@
+{% extends 'mes/base.html' %}
+{% load crispy_forms_tags %}
+{% load static %}
+{% load i18n %}
+{% block css %}
+    <style>
+
+
+         /* Container của switch */
+        .switch-container {
+            display: inline-block;
+            position: relative;
+            width: 60px;
+            height: 34px;
+            cursor: pointer;
+        }
+
+        /* Background của switch */
+        .switch-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 34px; /* Tạo hình tròn cho phần background */
+            background-color: #ccc; /* Màu nền khi tắt */
+            transition: background-color 0.3s; /* Hiệu ứng chuyển màu */
+        }
+
+        /* Nút của switch */
+        .switch-btn {
+            position: absolute;
+            top: 50%;
+            left: 4px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%; /* Tạo nút tròn */
+            background-color: white; /* Màu nền của nút */
+            transform: translateY(-50%); /* Căn giữa theo chiều dọc */
+            transition: left 0.3s; /* Hiệu ứng chuyển động của nút */
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); /* Tạo hiệu ứng đổ bóng */
+        }
+
+        {#/* Khi switch bật (active) */#}
+        {#.switch-container.active .switch-bg {#}
+        {#    background-color: #4CAF50; /* Màu nền khi bật */#}
+        {#}#}
+        {##}
+        {#.switch-container.active .switch-btn {#}
+        {#    left: 30px; /* Di chuyển nút sang phải khi bật */#}
+        {#}#}
+        {##}
+        {#/* Khi hover lên switch */#}
+        {#.switch-container:hover .switch-bg {#}
+        {#    background-color: #aaa; /* Màu nền khi hover */#}
+        {#}#}
+        {##}
+        {#.switch-container.active:hover .switch-bg {#}
+        {#    background-color: #3e8e41; /* Màu nền khi bật và hover */#}
+        {#}#}
+
+{#    /* Chỉ áp dụng khi DataTable đã tải xong */#}
+{##device-table.datatable-loaded .switch-container {#}
+{#    cursor: pointer;#}
+{#    opacity: 1; /* Hiển thị đầy đủ khi đã tải */#}
+{#    transition: opacity 0.3s;#}
+{#}#}
+{##}
+{##device-table.datatable-loaded .switch-container .switch-bg {#}
+{#    background-color: #ccc; /* Màu mặc định */#}
+{#}#}
+{##}
+{##device-table.datatable-loaded .switch-container.active .switch-bg {#}
+{#    background-color: #4CAF50; /* Màu khi bật */#}
+{#}#}
+{##}
+{##device-table.datatable-loaded .switch-container:hover .switch-bg {#}
+{#    background-color: #aaa; /* Màu khi hover */#}
+{#}#}
+{##}
+{##device-table.datatable-loaded .switch-container.active:hover .switch-bg {#}
+{#    background-color: #3e8e41; /* Màu khi hover và bật */#}
+{#}#}
+
+
+
+    </style>
+{% endblock %}
+{% block js %}
+
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script>
+    $(document).ready(function() {
+        var table = $('#device-table').DataTable({
+            "Loading...": true,  // Hiển thị thông báo đang tải dữ liệu
+            "ajax": {
+                "url": "{% url 'spiderweb_config' %}",  // URL để gọi view spiderweb_config
+                "type": "GET",
+                "dataSrc": function(json) {
+                    return json.data;  // Trả lại dữ liệu từ key 'data' để DataTable hiển thị
+                }
+            },
+            "columns": [
+                { "data": "device_group" },  // Cột Device Group
+                { "data": "device_name" },   // Cột Device Name
+                {
+                    "data": null,
+                    "render": function (data, type, row) {
+                        const isActive = row.enable === 'N';
+                        return `
+                            <div class="switch-container ${isActive ? 'active' : ''}" data-id="${row.device_name}">
+                                <div class="switch-bg"></div>
+                                <div class="switch-btn"></div>
+                            </div>
+                            `;
+                    }
+                },
+                {
+                    data: 'stop_before',
+                    render: function(data, type, row) {
+                        // Kiểm tra nếu data hợp lệ và chuyển đổi sang Date
+                        const stopBeforeValue = data ? new Date(data) : '';
+                        const formattedValue = stopBeforeValue instanceof Date && !isNaN(stopBeforeValue.getTime())
+                            ? stopBeforeValue.toISOString().slice(0, 19).replace('T', ' ')  // Nếu hợp lệ, định dạng lại
+                            : '';  // Nếu không hợp lệ, trả về chuỗi rỗng
+
+                        return `
+                            <input type="text" class="datetime-picker-btn" id="stopBefore_${row.device_name}"
+                                   data-device-name="${row.device_name}"
+                                   value="${data || ''}"/>
+                           <button class="save-datetime-btn" data-device-name="${row.device_name}">Save</button>
+                        `;
+                    }
+                },
+                { "data": "update_by" },     // Cột Update By
+                { "data": "update_at" }      // Cột Update At
+            ],
+            "scrollY": "500px",  // Chiều cao tối đa của bảng, đơn vị px
+            "scrollCollapse": true,  // Bật/tắt thu gọn bảng nếu dữ liệu ít hơn chiều cao
+            "paging": false,  // Cho phép phân trang
+            "searching": true,  // Cho phép tìm kiếm
+            "ordering": true  // Cho phép sắp xếp các cột
+        });
+
+        // Toggle switch khi click
+        $('#device-table').on('click', '.switch-container', function () {
+            const switchElement = $(this);
+            const isActive = switchElement.hasClass('active');
+            const status = switchElement.data('id');
+
+            // Đổi trạng thái nút chuyển đổi
+            switchElement.toggleClass('active');
+
+            // Cập nhật hiệu ứng CSS
+            if (switchElement.hasClass('active')) {
+                switchElement.find('.switch-bg').css('background-color', '#4CAF50');
+                switchElement.find('.switch-btn').css('left', '26px');
+            } else {
+                switchElement.find('.switch-bg').css('background-color', '#ccc');
+                switchElement.find('.switch-btn').css('left', '4px');
+            }
+
+
+            // Gửi yêu cầu AJAX để cập nhật trạng thái
+            $.ajax({
+                url: "{% url 'toggle_device_status' %}",
+                method: "POST",
+                data: {
+                    status: status,
+                    is_active: !isActive,
+                    csrfmiddlewaretoken: '{{ csrf_token }}'
+                },
+                success: function (response) {
+                    console.log(response.message);
+
+                },
+                error: function (xhr) {
+                    alert("Có lỗi xảy ra!");
+                }
+            });
+        });
+
+
+
+        $('#device-table').on('click', '.save-datetime-btn', function() {
+            // Lấy tên thiết bị từ button
+
+            const deviceName = $(this).data('device-name');
+            console.log("Device Name: ", deviceName);  // Debug deviceName
+
+            // Tìm datetime picker tương ứng với deviceName
+            const datetimeInput = $(`#stopBefore_${deviceName}`);
+            console.log("Datetime Input Element: ", datetimeInput);  // Debug datetimeInput element
+
+            // Lấy giá trị datetime từ datetime picker
+            const selectedDateTime = datetimeInput.val();
+            console.log("Selected DateTime: ", selectedDateTime);  // Debug selectedDateTime
+
+            // Gửi dữ liệu về server qua AJAX
+            $.ajax({
+                url: "{% url 'save_datetime' %}",
+                method: "POST",
+                data: JSON.stringify({  // Dùng JSON.stringify để chuyển data thành JSON hợp lệ
+                    device_name: deviceName,
+                    stop_before: selectedDateTime
+                }),
+                contentType: "application/json", // Đảm bảo contentType là application/json
+                headers: {
+                    "X-CSRFToken": "{{ csrf_token }}"
+                },
+                success: function(response) {
+                    alert(response.message); // Hiển thị thông báo thành công
+                },
+                error: function(xhr) {
+                    alert("An error occurred while saving the datetime.");
+                }
+            });
+        });
+
+
+
+        // Sau khi DataTable load xong, áp dụng CSS cho các toggle switch
+        table.on('draw', function() {
+
+            console.log("DataTable draw event triggered.");
+            {#$('#device-table').addClass('datatable-loaded');#}
+
+            $('.switch-container').each(function() {
+                const switchElement = $(this);
+
+            // Đổi trạng thái nút chuyển đổi
+            switchElement.toggleClass('active');
+                // Kiểm tra nếu toggle đang trong trạng thái active
+                if (switchElement.hasClass('active')) {
+                    switchElement.find('.switch-bg').css('background-color', '#4CAF50');  // Màu nền khi bật
+                    switchElement.find('.switch-btn').css('left', '26px');  // Di chuyển nút sang phải
+                } else {
+                    switchElement.find('.switch-bg').css('background-color', '#ccc');  // Màu nền khi tắt
+                    switchElement.find('.switch-btn').css('left', '4px');  // Đưa nút về vị trí ban đầu
+                }
+
+            });
+
+
+            $('.datetime-picker-btn').each(function() {
+                const defaultDate = this.value; // Lấy giá trị từ trường value
+                flatpickr(this, {
+                    enableTime: true,
+                    dateFormat: "d-m-Y H:i",
+                    defaultDate: defaultDate || null,  // Mặc định là ngày giờ hiện tại
+                    allowInput: true,  // Cho phép nhập thủ công
+                });
+            });
+
+
+
+        });
+
+
+
+    });
+</script>
+{% endblock js %}
+{% block title %} SpiderWeb Config {% endblock title %}
+{% block content %}
+    <table id="device-table" class="display">
+        <thead>
+            <tr>
+                <th>device_group</th>
+                <th>device_name</th>
+                <th>Enable</th>
+                <th>Stop Before</th>
+                <th>Update by</th>
+                <th>Update at</th>
+            </tr>
+        </thead>
+    <tbody>
+    {% csrf_token %}
+    </tbody>
+    </table>
+  <!-- Flatpickr CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+
+    <!-- Flatpickr JS -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+{% endblock content %}
